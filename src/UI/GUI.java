@@ -49,6 +49,7 @@ import Controllers.ProductController;
 import Model.Company;
 import Model.Material;
 import Model.Order;
+import Model.Order.State;
 import Model.OrderLine;
 import Model.ProductDescription;
 
@@ -749,57 +750,43 @@ public class GUI extends JFrame {
 		errorMessage("Product Amount", "Remember to change amount of the item and apply changes :)");
 	}
 	
-	private void addProductConfirm(ActionEvent e) { //Confirming addition of a product in AddProductFrame frame
+	private void addProductConfirm(ActionEvent e) { // Confirming addition of a product in AddProductFrame frame
 		Order order = getCurrentOrder();
 		
-		if(order == null) {
+		// if there is no order/order is being or been delivered, create one and an order line
+		if(order == null || order.getState() == State.DELIVERED || order.getState() == State.DELIVERING) {
 			int companyId = getCurrentCompany().getId();
 			BigDecimal priceInTotal = new BigDecimal(0);
 			int discount = 0;
 			int orderId = 0;
+			// try adding an order
 			try {
 				orderId = orderCtrl.addOrder(companyId, priceInTotal, discount, Order.State.ACCEPTED);
 				order = orderCtrl.findByID(orderId);
 				getCurrentCompany().getOrderList().add(order);
 				orderListTableModel.setData(getCurrentCompany().getOrderList());
+				// auto select the newly created order
+				table_1.updateUI();
+				table_1.setRowSelectionInterval(getCurrentCompany().getOrderList().size()-1, getCurrentCompany().getOrderList().size()-1);
+
 			} catch (DataAccessException e1) {
 				errorMessageException("Order addition", "Failed to add an order", e1);
-				e1.printStackTrace();
+				// e1.printStackTrace();
 			}
-			table_1.updateUI();
-			table_1.setRowSelectionInterval(getCurrentCompany().getOrderList().size()-1, getCurrentCompany().getOrderList().size()-1);
-			addProductConfirm(e);
 		}
-		else if(order.getState() == Order.State.ACCEPTED) { //when order is still in production phase, choose this order
-			//order = getCurrentOrder();
-		}
-		else { //when order is being delivered/has been delivered, make a new order
-			int companyId = getCurrentCompany().getId();
-			BigDecimal priceInTotal = new BigDecimal(0);
-			int discount = 0;
-			int orderId = 0;
-			try {
-				orderId = orderCtrl.addOrder(companyId, priceInTotal, discount, Order.State.ACCEPTED);
-				order = orderCtrl.findByID(orderId);
-				getCurrentCompany().getOrderList().add(order);
-				orderListTableModel.setData(getCurrentCompany().getOrderList());
-			} catch (DataAccessException e1) {
-				errorMessageException("Order addition", "Failed to add an order", e1);
-				e1.printStackTrace();
-			}
-			table_1.updateUI();
-			table_1.setRowSelectionInterval(getCurrentCompany().getOrderList().size()-1, getCurrentCompany().getOrderList().size()-1);
-			addProductConfirm(e);
-		}
-			
+		order = getCurrentOrder();
+		
 		int orderID = order.getId();
 		int companyID = addProductFrame.getCurrentProduct().getId();
 		int amount = 0;
 		BigDecimal historicalPrice = addProductFrame.getCurrentProduct().getPrice();
-		OrderLine orderLine;
+		OrderLine orderLine = null;
+		// try creating an order line
 		try {
 			int orderLineID = orderLineCtrl.addOrderLine(orderID, companyID, amount, historicalPrice);
+			System.out.println("id: " + orderLineID);
 			orderLine = orderLineCtrl.findByID(orderLineID);
+			System.out.println(orderLine);
 			order.getOrderLineList().add(orderLine);
 			orderLineListTableModel.setData(order.getOrderLineList());
 				
@@ -975,7 +962,13 @@ public class GUI extends JFrame {
 		
 		if(orderLine != null) {
 			int quantity = (int)spinnerOrder.getValue();
-			int discount = Integer.parseInt(textOrderDiscount.getText());
+			String discountContent = textOrderDiscount.getText();
+			int discount = 0;
+			try {
+				discount = Integer.parseInt(discountContent);
+			} catch (NumberFormatException e1) {
+				errorMessage("Invalid input", "Discount must be a number");
+			}
 			orderLine.setAmount(quantity);
 			order.setDiscount(discount);
 		}
@@ -1094,7 +1087,7 @@ public class GUI extends JFrame {
 			String name = currentProduct.getName();
 			BigDecimal historicalPrice = currentOrderLine.getHistoricalPrice();
 			int quantity = currentOrderLine.getAmount();
-			BigDecimal totalProductPrice = historicalPrice.multiply((BigDecimal) spinnerOrder.getValue());
+			BigDecimal totalProductPrice = historicalPrice.multiply(new BigDecimal((Integer) spinnerOrder.getValue()));
 			
 			this.textFieldOrderId.setText("" + id);
 			this.textFieldOrderName.setText("" + name);
@@ -1114,7 +1107,7 @@ public class GUI extends JFrame {
 	}
 	
 	private void displayOrder(Order currentOrder) { //used to display order's information
-		if(currentOrder != null) {
+		if (currentOrder != null) {
 			int discount = currentOrder.getDiscount();
 			BigDecimal totalPrice = currentOrder.getPriceInTotal();
 			totalPrice = totalPrice.multiply(new BigDecimal((100-discount/100)));

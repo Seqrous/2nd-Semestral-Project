@@ -126,7 +126,7 @@ public class OrderDB implements OrderDBIF {
 	}
 	
 	public Order findByID(int id) throws DataAccessException {
-		ResultSet resultSet;
+		ResultSet resultSet = null;
 		
 		try {
 			dbConnection.startTransaction();
@@ -135,8 +135,8 @@ public class OrderDB implements OrderDBIF {
 			dbConnection.commitTransaction();
 		} catch (SQLException e) {
 			dbConnection.rollbackTransaction();
-			throw new DataAccessException("Failed to find customer's orders", e);
-			//e.printStackTrace();
+			//throw new DataAccessException("Failed to find customer's orders", e);
+			e.printStackTrace();
 		}
 		return buildObject(resultSet);
 	}
@@ -181,7 +181,9 @@ public class OrderDB implements OrderDBIF {
 				int id = resultSet.getInt(1);
 				BigDecimal priceInTotal = resultSet.getBigDecimal(2);
 				int discount = resultSet.getInt(3);
+				System.out.println(id + " " + priceInTotal + " " + discount);
 				Order.State state = State.valueOf(resultSet.getString(4));
+				System.out.println(id + " " + priceInTotal + " " + discount + " " + state);
 				orderLineCtrl = new OrderLineController();
 				List<OrderLine> orderLineList = orderLineCtrl.findAllByOrderID(id);
 				order = new Order(id, priceInTotal, discount, state, orderLineList);

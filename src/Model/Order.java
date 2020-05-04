@@ -27,10 +27,11 @@ public class Order {
 		this.id = id;
 	}
 	public BigDecimal getPriceInTotal() {
-		BigDecimal totalPrice = orderLineList.stream()
-										.map((e) -> e.getHistoricalPrice().multiply(new BigDecimal(e.getAmount())))
-										.reduce((a,b) -> a.add(b))
-										.get();
+		BigDecimal totalPrice = new BigDecimal(0);
+		// multiply price of the product by its amount and increase the totalPrice
+		for(OrderLine orderline : orderLineList) {
+			totalPrice = totalPrice.add(orderline.getProduct().getPrice().multiply(new BigDecimal(orderline.getAmount())));
+		}
 		return totalPrice;
 	}
 	public int getDiscount() {

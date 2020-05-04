@@ -128,7 +128,7 @@ public class OrderLineDB implements OrderLineDBIF{
 			dbConnection.commitTransaction();
 		} catch (DataAccessException | SQLException e) {
 			dbConnection.rollbackTransaction();
-			throw new DataAccessException("Failed to find the orderline by id", e);
+			throw new DataAccessException("Failed to find the orderline by ID", e);
 			//e.printStackTrace();
 		}
 		
