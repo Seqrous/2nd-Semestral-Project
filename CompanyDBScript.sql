@@ -3,7 +3,7 @@ IF NOT EXISTS (SELECT * FROM sys.databases WHERE name = N'CompanyDB')
 		CREATE DATABASE [CompanyDB];
 	END;
 
-USE CompanyDB;
+USE CompanyDB
 
 CREATE TABLE Employee (
 	id int IDENTITY(1, 1) NOT NULL,

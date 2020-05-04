@@ -985,10 +985,12 @@ public class GUI extends JFrame {
 	private void applyChangesClicked(ActionEvent e) {
 		Company currCompany = getCurrentCompany();
 		
+		// get data for update form text fields
 		String name = this.txtCompanysName.getText();
 		String email = this.txtEmail.getText();
 		String phoneNumber = this.txtPhoneNumber.getText();
 		
+		// validation
 		boolean correctName = validateCompanyName(name);
 		boolean correctEmail = validateEmail(email);
 		//boolean correctPhoneNumber = validatePhoneNumber(phoneNumber);
@@ -997,18 +999,21 @@ public class GUI extends JFrame {
 			if(currCompany!=null) {
 				boolean updateSuccess = false;
 				int id = getCurrentCompany().getId();
-				
 				try {
 					updateSuccess = companyCtrl.updateCompany(id, name, email, phoneNumber);
+				} catch (DataAccessException e1) {
+					errorMessageException("Applying changes", "Failed to apply changes", e1);
+					// e1.printStackTrace();
+				}
+				if(updateSuccess) {
+					// update targeted company parameters
 					currCompany.setName(name);
 					currCompany.setEmail(email);
 					currCompany.setPhoneNumber(phoneNumber);
-				} catch (DataAccessException e1) {
-					errorMessageException("Applying changes", "Failed to apply changes", e1);
-					e1.printStackTrace();
-				}
-				if(updateSuccess) {
 					JOptionPane.showMessageDialog(null, "Update succeeded");
+				}
+				else {
+					errorMessage("Update", "Update failed, the name is already used");
 				}
 			}
 			else {

@@ -19,7 +19,17 @@ public class CompanyController {
 	}
 	
 	public boolean updateCompany(int id, String name, String email, String phoneNumber) throws DataAccessException {
-		 return companyDB.updateCompany(id, name, email, phoneNumber);
+		boolean exists = false;
+		exists = companyDB.findByExactName(name);
+		System.out.println(exists);
+		// if name is not used already - let update
+		if(!exists) {
+			return companyDB.updateCompany(id, name, email, phoneNumber);
+		}
+		// if name is used - do not allow to update
+		else {
+			return false;
+		}
 	}
 	
 	public List<Company> findByName(String name) throws DataAccessException {
