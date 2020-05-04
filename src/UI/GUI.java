@@ -747,13 +747,13 @@ public class GUI extends JFrame {
 		addProductButtonFrame = addProductFrame.getAddProductButton();
 		addProductButtonFrame.addActionListener(this::addProductConfirm);
 		
-		errorMessage("Product Amount", "Remember to change amount of the item and apply changes :)");
+		JOptionPane.showMessageDialog(null, "Remember to change amount of the item and apply changes :)");
 	}
 	
 	private void addProductConfirm(ActionEvent e) { // Confirming addition of a product in AddProductFrame frame
 		Order order = getCurrentOrder();
 		
-		// if there is no order/order is being or been delivered, create one and an order line
+		// if there is no order/order is being or been delivered, create one
 		if(order == null || order.getState() == State.DELIVERED || order.getState() == State.DELIVERING) {
 			int companyId = getCurrentCompany().getId();
 			BigDecimal priceInTotal = new BigDecimal(0);
@@ -774,32 +774,66 @@ public class GUI extends JFrame {
 				// e1.printStackTrace();
 			}
 		}
-		order = getCurrentOrder();
 		
-		int orderID = order.getId();
-		int companyID = addProductFrame.getCurrentProduct().getId();
-		int amount = 0;
-		BigDecimal historicalPrice = addProductFrame.getCurrentProduct().getPrice();
-		OrderLine orderLine = null;
-		// try creating an order line
-		try {
-			int orderLineID = orderLineCtrl.addOrderLine(orderID, companyID, amount, historicalPrice);
-			System.out.println("id: " + orderLineID);
-			orderLine = orderLineCtrl.findByID(orderLineID);
-			System.out.println(orderLine);
-			order.getOrderLineList().add(orderLine);
-			orderLineListTableModel.setData(order.getOrderLineList());
-				
-		} catch (DataAccessException e1) {
-			errorMessageException("Orderline creation", "Failed to create orderline", e1);
-			//e1.printStackTrace();
-		}
+		order = getCurrentOrder();
+		ProductDescription currentProduct = addProductFrame.getCurrentProduct();
+		
+		if (currentProduct != null) {
+			// check if the product is already in the order
+			// checks name, material's name and compares current price with the historical price
+			boolean productInOrderLine = false;
+			// check if there are any element in order list
+			if(!order.getOrderLineList().isEmpty()) {
+				for(OrderLine orderline : order.getOrderLineList()) {
+					if((currentProduct.getName().equals(orderline.getProduct().getName())) &&
+					   (currentProduct.getMaterial().getName().equals(orderline.getProduct().getMaterial().getName())) &&
+					   (currentProduct.getPrice().compareTo(orderline.getHistoricalPrice())) == 0 ? true : false) {
+						try {
+							productInOrderLine = orderLineCtrl.updateOrderLine(orderline.getID(), orderline.getAmount() + 1);
+							if(productInOrderLine) {
+								orderline.setAmount(orderline.getAmount()+1);
+							}
+						} catch (DataAccessException e1) {
+							errorMessageException("Add extra item", "The item's quantity can't have been updated \n"
+																	+ "Extra item entry have been added", e1);
+							// e1.printStackTrace();
+						}
+					}
+				}
+			}
+			// if there are no order lines
+			else {
+				// if product is not in the order line - create a new one
+				if(!productInOrderLine) {
+					int orderID = order.getId();
+					int companyID = currentProduct.getId();
+					int amount = 1;
+					BigDecimal historicalPrice = currentProduct.getPrice();
+					OrderLine orderLine = null;
+					// try creating an order line
+					try {
+						int orderLineID = orderLineCtrl.addOrderLine(orderID, companyID, amount, historicalPrice);
+						System.out.println("id: " + orderLineID);
+						orderLine = orderLineCtrl.findByID(orderLineID);
+						System.out.println(orderLine);
+						order.getOrderLineList().add(orderLine);
+						orderLineListTableModel.setData(order.getOrderLineList());
+							
+					} catch (DataAccessException e1) {
+						errorMessageException("Orderline creation", "Failed to create orderline", e1);
+						//e1.printStackTrace();
+					}
+				}
+			}
 			
-		displayOrder(getCurrentOrder());
+			displayOrder(getCurrentOrder());
+		}
+		else {
+			errorMessage("No product selected", "Please select a product");
+		}
 	}
 	
 	private void updatePrices(int quantity) {
-		
 		OrderLine currentOrderLine = getCurrentOrderLine();
 		if (currentOrderLine != null) {
 			currentOrderLine.setAmount(quantity);
@@ -809,8 +843,9 @@ public class GUI extends JFrame {
 			
 			BigDecimal totalPrice = getCurrentOrder().getPriceInTotal();
 			int discount = Integer.parseInt(textOrderDiscount.getText());
-			totalPrice = totalPrice.multiply(new BigDecimal((100-discount)/100));
-			textFieldOrderTotal.setText("" + totalPrice);
+			totalPrice = totalPrice.multiply(new BigDecimal(String.format("%.2f",((100-discount)/100f)) + ""));
+			String totalPriceString = String.format("%.2f", totalPrice);
+			textFieldOrderTotal.setText("" + totalPriceString);
 		}
 	}
 	
