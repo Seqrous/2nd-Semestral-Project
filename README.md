@@ -11,3 +11,9 @@ On a 2nd semester we were faced with a problem of finding a company that would b
 - simple SQL database script in *sql scripts*,
 - Java DataBase Connectivity files in *jdbc*,
 - project report in *report*
+
+### With the current version you should be able to:
+- create and edit a product,
+- create/find and edit a customer,
+- create/view/edit an order,
+- add/edit products in the order
