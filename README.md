@@ -1,3 +1,5 @@
+Still in development - refining the functionalities
+
 # 2nd-Semetral-Project
 A product/order management system inspired by a Croatian company
 
