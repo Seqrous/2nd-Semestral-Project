@@ -7,4 +7,5 @@ On a 2nd semester we were faced with a problem of finding a company that would b
 ### Project consists of:
 - code located in *src*,
 - simple SQL database script in *sql scripts*,
-- Java DataBase Connectivity files in *jdbc*
+- Java DataBase Connectivity files in *jdbc*,
+- project report in *report*
