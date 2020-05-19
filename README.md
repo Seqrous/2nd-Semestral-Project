@@ -8,7 +8,7 @@ On a 2nd semester we were faced with a problem of finding a company that would b
 
 ### Project consists of:
 - code located in *src*,
-- simple SQL database script in *sql scripts*,
+- simple SQL database script in *sql scripts* that will create a local database,
 - Java DataBase Connectivity files in *jdbc*,
 - project report in *report*
 
@@ -16,4 +16,12 @@ On a 2nd semester we were faced with a problem of finding a company that would b
 - create and edit a product,
 - create/find and edit a customer,
 - create/view/edit an order,
-- add/edit products in the order
+- add products to the order
+
+### Prerequisites:
+The project has been written using Eclipse IDE and has not been tested outside of it yet
+```
+- Eclipse IDE for Java
+```
+### Run the project:
+Simply import the project and run the GUI.java 
