@@ -22,6 +22,21 @@ On a 2nd semester we were faced with a problem of finding a company that would b
 The project has been written using Eclipse IDE and has not been tested outside of it yet
 ```
 - Eclipse IDE for Java
+- Some environment for managing SQL (SQL Server Management Studio in my case)
 ```
 ### Run the project:
-Simply import the project and run the GUI.java 
+##### 1. Setting up the project in the Eclipse IDE
+- 1.1. Import project from **File >>> Open Projects from File System...**
+- 1.2. Right click the project file and select **Build Path >>> Configure Build Path...**
+![alt text](https://github.com/Seqrous/2nd-Semestral-Project/blob/master/1.png)
+- 1.3. Navigate to 'Libraries' tab and click **Add External Jars...**
+![alt text](https://github.com/Seqrous/2nd-Semestral-Project/blob/master/2.png)
+- 1.4. Locate the project folder and select both of the .jar files found in *jdbc* folder
+- 1.5. Now you should see them on the list in 'Libraries' tab and you can click **Apply and Close**
+
+##### 2. Creating the database
+**Disclaimer! - In my case, I was using SQL Server Management Studio**
+- 2.1 In the environment you are using for SQL, import the query found in *sql scripts*
+- 2.2 Run it and the databaset should be set up.
+
+##### 3. Now you should be able to run the project, just execute GUI.java file
